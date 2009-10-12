@@ -1,0 +1,14 @@
+prc 8
+bpm 60
+vol 0 255
+vol 1 0
+vol 2 0
+vol 3 0
+frq 0 440000
+rst 1
+vol 1 128
+frq 1 300000
+rst 1
+frq 1 330000
+rst 2
+

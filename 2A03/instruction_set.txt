@@ -1,0 +1,61 @@
+Configurable 2A03-alike Instruction Set
+---------------------------------------
+
+Instruction Format
+------------------
+Instruction width = 16-32 bits
+
+ Short form
+  +-+---------+---------+-------------------------+
+  |0| Opcode  | Channel |          Data           |
+  +-+---------+---------+-------------------------+
+       5-bits    2-bits            8-bits
+
+ Long Form
+  +-+---------+---------+-------------------------+
+  |1| Opcode  | Channel |          Data           |
+  +-+---------+---------+-------------------------+
+       5-bits    2-bits            24-bits
+
+First bit determines which form is used.
+
+Opcodes
+-------
+0 - Nop?
+1 - Precision (1 - 8)
+2 - Tempo (60 - 2^24) in bpm
+3 - Rest (0 - 2^24) in 1/32 beats
+4 - Freq (1 - 2^24) in 1/1000 Hz
+5 - Volume (0 - 255)
+6 - Param (0 - 255)
+7 - Pitchbend (TODO)
+8 - PCM load (0 - 2^24) number of samples
+9 - PCM playback (0 - 31) sample index
+
+Channel
+-------
+0 - 3 (channel 4 is PCM only and non-configurable)
+
+PCM
+---
+All pcm data is raw (header-less) 8-bit unsigned mono PCM at 11.25kHz.
+It is added directly to the output stream with no clamping, so the volume
+must be pre-adjusted accordingly.
+
+PCM data is specified with a PCM load instruction, containing the number of
+samples. The data is copied into memory and played when referenced by a pcm play
+instruction. Only one sample can be played at a time. If one is playing and
+another is triggered, it will override the currently playing one.
+
+Assembly Language Spec
+======================
+nop
+prc <precision value>
+bpm <beats per minute>
+rst <rest length>
+frq <channel> <frequency>
+vol <channel> <volume>
+par <channel> <parameter>
+pcl "<filename>"
+pcp <index>
+
