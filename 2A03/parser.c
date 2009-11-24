@@ -38,16 +38,19 @@ static const u8 LONG_FORM    = 0b10000000;
 static const u8 OPCODE_MASK  = 0b01111100;
 static const u8 CHANNEL_MASK = 0b00000011;
 
-static const float MINUTE_LENGTH = 60.0f * 1000000.0f;
-
 static const int OPCODE_SHIFT = 2;
 
-void *parseFile(void *p) {
+int parseFile() {
 	u8 instr, d1, d2, d3; /* what we're reading into */
 	u8 opcode, channel;  /* decoded instruction */
 	unsigned int data = 0;  /* decoded data */
 	
 	int doSleep = 0;
+	
+	if(samplesToSleep) {
+		samplesToSleep--;
+		return 1; //still parsing
+	}
 	
 	/* start reading the file */
 	ssize_t readBytes;
@@ -75,19 +78,17 @@ void *parseFile(void *p) {
 		}
 
 		/* execute the instruction */
-		pthread_mutex_lock(&mutexParse);
 		doSleep = executeInstruction(opcode, channel, data);
-		pthread_mutex_unlock(&mutexParse);
 		
 		if(doSleep)
-			usleep(sleepTime);
+			return 1;
 		
 		/* continue reading */
 		readBytes = read(hFile, &instr, 1);
 	}
-	pthread_mutex_lock(&mutexDone);
-	done = 1;
-	pthread_mutex_unlock(&mutexDone);
+	
+	if(readBytes == 0)
+		done = 1;
 	
 	return 0;
 }
@@ -104,11 +105,11 @@ int executeInstruction(u8 opcode, u8 channel, unsigned int data) {
 		case 2: /* tempo */
 			if(fData < 60.0f)
 				fData = 60.0f;
-				
-			beatLength = (useconds_t)(MINUTE_LENGTH / fData);
+			
+			beatLengthSamples = (int)(((float)sampleRate * 60.0f) / fData);
 			break;
 		case 3: /* rest */
-			sleepTime = beatLength * (useconds_t)data;
+			samplesToSleep = beatLengthSamples * data;
 			return 1;
 			break;
 		case 4: /* freq */

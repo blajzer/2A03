@@ -27,7 +27,6 @@ THE SOFTWARE.
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <pthread.h>
 #include <unistd.h>
 #include "types.h"
 
@@ -40,11 +39,10 @@ extern int channels;
 
 /* output buffer */
 extern int bufferSize;
-extern u8 *outputBuffer;
 
 /* other settings */
 extern int outputPrecision;
-extern useconds_t beatLength;
+extern unsigned int beatLengthSamples;
 
 /* oscillators */
 extern struct OscData *pOscillators[4];
@@ -57,13 +55,9 @@ extern unsigned int currentFreeSample;
 extern int sampleIndex;
 extern unsigned int sampleOffset;
 
-/* mutexes */
+/* parsing vars */
 extern int done;
 extern int hFile;
-extern useconds_t sleepTime;
-extern pthread_mutex_t mutexDone;
-extern pthread_mutex_t mutexParse;
-
-
+extern unsigned int samplesToSleep; 
 #endif
 

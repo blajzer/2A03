@@ -28,10 +28,9 @@ int sampleRate = 48000;
 int channels = 1;
 
 int bufferSize = 2048;
-u8 *outputBuffer = 0;
 
 int outputPrecision = 6;
-useconds_t beatLength = 0;
+unsigned int beatLengthSamples = 0;
 
 struct OscData *pOscillators[4];
 
@@ -44,7 +43,4 @@ unsigned int sampleOffset = 0;
 
 int done = 0;
 int hFile = -1;
-useconds_t sleepTime = 0;
-pthread_mutex_t mutexDone = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexParse = PTHREAD_MUTEX_INITIALIZER;
-
+unsigned int samplesToSleep = 0;

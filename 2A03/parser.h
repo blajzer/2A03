@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 #include "types.h"
 
-void *parseFile(void *);
+int parseFile();
 
 int executeInstruction(u8 opcode, u8 channel, unsigned int data);
 

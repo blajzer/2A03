@@ -21,8 +21,7 @@ THE SOFTWARE.
 */
 
 /*
-2A03: Super tiny NES-style synth. Barely portable, even on Linux.
-
+2A03: Super tiny NES-style synth. Now slightly more portable!
 */
 
 #include <stdlib.h>
@@ -32,7 +31,8 @@ THE SOFTWARE.
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <pthread.h>
+
+#include <SDL/SDL.h>
 
 #include "linux/soundcard.h"
 
@@ -40,71 +40,52 @@ THE SOFTWARE.
 #include "osc.h"
 #include "parser.h"
 
-void fillOutputBuffer() {
+void fillOutputBuffer(void *userdata, Uint8 *stream, int len) {
 	int i, j;
+	int status;
 	
-	for(j = 0; j < bufferSize; ++j) {
+	for(j = 0; j < len; ++j) {
+		/* call parser */
+		status = parseFile();
+		if(status == 0)
+			done = 1;
+		
 		/* calculate and accumulate the output */
 		float outTemp = 0.0;
-		pthread_mutex_lock(&mutexParse);
 		for(i = 0; i < 4; ++i) {
 			outTemp += osc_getValue( pOscillators[i] );
 			osc_advanceOsc( pOscillators[i] );
 		}
-		pthread_mutex_unlock(&mutexParse);
 		/* TODO: clamp or whatever the value */
 		
 		
-		outputBuffer[j] = osc_convertToNBit(outTemp);
+		stream[j] = osc_convertToNBit(outTemp);
 	}
 }
 
 int main(int argc, char **argv) {
-	int hDSP;
-	int arg;
-	int status;
-	pthread_t thread;
+	SDL_AudioSpec specDesired;
+	SDL_AudioSpec *pSpecObtained = NULL;
 	
 	if(argc < 2) {
 		printf("ERROR: no file specified!\n");
 		return 1;
 	}
 	
-	/* open output device */
-	hDSP = open("/dev/dsp", O_WRONLY);
-	if(hDSP < 0) {
-		printf("ERROR:%d:Can't open /dev/dsp!\n", hDSP);
+	/* init sdl and open the audio */
+	SDL_Init(SDL_INIT_AUDIO);
+	
+	specDesired.freq = sampleRate;
+	specDesired.format = AUDIO_U8;
+	specDesired.channels = channels;
+	specDesired.samples = bufferSize;
+	specDesired.callback = fillOutputBuffer;
+	SDL_OpenAudio(&specDesired, pSpecObtained);
+	
+	if(pSpecObtained != NULL) {
+		printf("Error: Can't get desired spec.\n");
 		return 1;
 	}
-	
-	/* set parameters */
-	arg = sampleSize;
-	status = ioctl(hDSP, SOUND_PCM_WRITE_BITS, &arg);
-	if(status == -1 || arg != sampleSize) {
-		printf("ERROR: Can't set sample size to 8-bits.\n");
-		return 1;
-	}
-	
-	arg = channels;
-	status = ioctl(hDSP, SOUND_PCM_WRITE_CHANNELS, &arg);
-	if(status == -1 || arg != channels) {
-		printf("ERROR: Can't set mono output.\n");
-		return 1;
-	}
-	
-	arg = sampleRate;
-	status = ioctl(hDSP, SOUND_PCM_WRITE_RATE, &arg);
-	if(status == -1 || arg != sampleRate) {
-		printf("Can't set sample rate to %d, setting to %d instead.\n", sampleRate, arg);
-		sampleRate = arg;
-	}
-	
-	/* create mutexes */
-	pthread_mutex_init(&mutexDone, NULL);
-	pthread_mutex_init(&mutexParse, NULL);
-	
-	/* init the state and output buffer */
-	outputBuffer = malloc(bufferSize * sizeof(u8)); 
 
 	/* make the oscillators */
 	int i;
@@ -145,30 +126,26 @@ int main(int argc, char **argv) {
 	hFile = open(argv[1], O_RDONLY);
 	
 	if(hFile != -1) {
-		/* create parsing thread */
-		pthread_create(&thread, NULL, parseFile, NULL);
-	
-		pthread_mutex_lock(&mutexDone);
+		SDL_PauseAudio(0);
+		SDL_LockAudio();
 		while(!done) {
-			pthread_mutex_unlock(&mutexDone);
-		
-			fillOutputBuffer();
-			write(hDSP, outputBuffer, bufferSize);
-		
-			pthread_mutex_lock(&mutexDone);
+			SDL_UnlockAudio();
+			SDL_Delay(10);
+			SDL_LockAudio();
 		}
-		pthread_mutex_unlock(&mutexDone);
+		SDL_UnlockAudio();
 	} else {
 		printf("ERROR: can't open file \"%s\"\n", argv[1]);
 	}
 	
+	SDL_CloseAudio();
+	SDL_Quit();
 	/* clean up */
 	for(i = 0; i < 4; ++i)
 		free(pOscillators[i]);
-	close(hDSP);
-	free(outputBuffer);
-	pthread_mutex_destroy(&mutexDone);
-	pthread_mutex_destroy(&mutexParse);
+	for(i = 0; i < 32; i++)
+		if(pSamples[i] != NULL)
+			free(pSamples[i]);
 	
 	return 0;
 }
