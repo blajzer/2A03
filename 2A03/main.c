@@ -27,14 +27,11 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
 #include <SDL/SDL.h>
-
-#include "linux/soundcard.h"
 
 #include "globals.h"
 #include "osc.h"
@@ -50,16 +47,28 @@ void fillOutputBuffer(void *userdata, Uint8 *stream, int len) {
 		if(status == 0)
 			done = 1;
 		
+		stream[j] = 0;
+		
 		/* calculate and accumulate the output */
 		float outTemp = 0.0;
 		for(i = 0; i < 4; ++i) {
 			outTemp += osc_getValue( pOscillators[i] );
 			osc_advanceOsc( pOscillators[i] );
-		}
+		}	
 		/* TODO: clamp or whatever the value */
 		
-		
 		stream[j] = osc_convertToNBit(outTemp);
+		
+		/* add in the raw PCM sample */
+		if(sampleIndex != NO_SAMPLE) {
+			if(sampleOffset < sampleLengths[sampleIndex]) {
+				signed char diff = pSamples[sampleIndex][sampleOffset] - 127;
+				stream[j] += diff;
+				++sampleOffset;
+			} else {
+				sampleIndex = NO_SAMPLE;
+			}
+		}
 	}
 }
 

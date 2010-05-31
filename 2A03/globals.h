@@ -30,6 +30,8 @@ THE SOFTWARE.
 #include <unistd.h>
 #include "types.h"
 
+#define NO_SAMPLE 255
+
 struct OscData; /* forward declaration */
 
 /* sound device settings */

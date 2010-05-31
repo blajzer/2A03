@@ -39,7 +39,7 @@ const char INSTR_OPCODE_MASK  = 0b01111100;
 const char INSTR_CHANNEL_MASK = 0b00000011;
 
 struct MnemonicInfo {
-	MnemonicInfo(string m, int o, int f): mnemonic(m), opcode(o), form(f){};
+	MnemonicInfo(const char *m, int o, int f): mnemonic(m), opcode(o), form(f){};
 	string mnemonic;
 	int opcode;
 	int form;
@@ -202,7 +202,59 @@ void processLine(stringstream &line) {
 		}
 		case 3:
 		{
-			cerr << "ERROR: PCM Load not yet implemented!" << endl;
+			//try to get path
+			char pcmPath[1024];
+			line.getline(&pcmPath[0], 1023);
+			pcmPath[line.gcount()] = 0;
+			
+			if(line.fail()) {
+				cerr << "ERROR:"<< lineNum <<": Invalid pcm load instruction." << endl;
+				exit(1);
+			}
+			
+			//clean up path (remove quotes and surrounding whitespace)
+			string cleanPath(pcmPath);
+			size_t firstQuote = cleanPath.find_first_of('\"');
+			size_t lastQuote = cleanPath.find_last_of('\"');
+			
+			if(firstQuote == string::npos || lastQuote == string::npos || firstQuote == lastQuote || lastQuote == firstQuote + 1) {
+				cerr << "ERROR:"<< lineNum <<": Invalid pcm load instruction." << endl;
+				exit(1);
+			}
+			
+			cleanPath = cleanPath.substr(firstQuote + 1, lastQuote - 2);
+			
+			//open file
+			ifstream pcmFile;
+			pcmFile.open(cleanPath.c_str());
+			if(pcmFile.fail()) {
+				cerr << "ERROR:"<< lineNum <<": Can't open file: \"" << cleanPath << "\"" << endl;
+				exit(1);
+			}
+			
+			//read out the data
+			//TODO: read in chunks and use less memory
+			stringstream pcmData;
+			char c;
+			while(pcmFile.good()) {
+				c = pcmFile.get();
+				if(pcmFile.good())
+					pcmData << c;
+			}
+			
+			size_t dataLen = pcmData.str().length();
+			if(dataLen > 255)
+				setFormChannelOpcode(true, 0, instrOpcode);
+			else
+				setFormChannelOpcode(false, 0, instrOpcode);
+				
+			setInstrData(dataLen);
+			writeInstruction();
+			
+			//write out the data
+			fileOut.write(pcmData.str().c_str(), dataLen);
+			
+			shouldWrite = false;
 			break;
 		}
 		default:
@@ -220,7 +272,7 @@ void processLine(stringstream &line) {
 
 int main(int argc, char *argv[]) {
 	if(argc < 3) {
-		cout << "USAGE: " << argv[0] << "<input file> <output file>" << endl;
+		cout << "USAGE: " << argv[0] << " <input file> <output file>" << endl;
 		return 1;
 	}
 

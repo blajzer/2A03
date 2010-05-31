@@ -49,7 +49,7 @@ int parseFile() {
 	
 	if(samplesToSleep) {
 		samplesToSleep--;
-		return 1; //still parsing
+		return 1; /* still parsing */
 	}
 	
 	/* start reading the file */
