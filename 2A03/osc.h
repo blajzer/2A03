@@ -41,6 +41,7 @@ struct OscData {
 	float freq; /* the frequency */
 	float param; /* extra parameter */
 	float volume; /* volume */
+	float pitchbend; /* pitchbend amount, modifies step */
 	
 	float step; /* how much to step forward each iteration */
 };
@@ -50,6 +51,7 @@ struct OscData {
 void osc_setFreq(struct OscData *pOsc, float freq);
 void osc_setVolume(struct OscData *pOsc, float vol);
 void osc_setParam(struct OscData *pOsc, float param);
+void osc_setPitchbend(struct OscData *pOsc, float pitchbend);
 void osc_advanceOsc(struct OscData *pOsc);
 
 /* function to get the current value of the oscillator */

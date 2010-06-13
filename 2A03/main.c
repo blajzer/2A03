@@ -98,32 +98,19 @@ int main(int argc, char **argv) {
 
 	/* make the oscillators */
 	int i;
-	for(i = 0; i < 4; ++i)
+	for(i = 0; i < 4; ++i) {
 		pOscillators[i] = (struct OscData *)malloc(sizeof(struct OscData));
+		pOscillators[i]->wavePos = 0.0f;
+		osc_setFreq(pOscillators[i], 1.0f);
+		osc_setVolume(pOscillators[i], 0.0f);
+		osc_setParam(pOscillators[i], 0.0f);
+		osc_setPitchbend(pOscillators[i], 0.0f);
+	}
 	
 	pOscillators[0]->type = SQUARE;
-	pOscillators[0]->wavePos = 0.0f;
-	osc_setFreq(pOscillators[0], 1.0f);
-	osc_setVolume(pOscillators[0], 0.0f);
-	osc_setParam(pOscillators[0], 0.0f);
-	
 	pOscillators[1]->type = SQUARE;
-	pOscillators[1]->wavePos = 0.0f;
-	osc_setFreq(pOscillators[1], 1.0f);
-	osc_setVolume(pOscillators[1], 0.0f);
-	osc_setParam(pOscillators[1], 0.0f);
-	
 	pOscillators[2]->type = TRIANGLE;
-	pOscillators[2]->wavePos = 0.0f;
-	osc_setFreq(pOscillators[2], 1.0f);
-	osc_setVolume(pOscillators[2], 0.0f);
-	osc_setParam(pOscillators[2], 0.0f);
-	
 	pOscillators[3]->type = RANDOM;
-	pOscillators[3]->wavePos = 0.0f;
-	osc_setFreq(pOscillators[3], 1.0f);
-	osc_setVolume(pOscillators[3], 0.0f);
-	osc_setParam(pOscillators[3], 0.0f);
 	
 	/* init sample buffer array */
 	for(i = 0; i < 32; ++i) {

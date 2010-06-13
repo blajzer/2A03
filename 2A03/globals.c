@@ -24,10 +24,10 @@ THE SOFTWARE.
 #include "osc.h"
 
 int sampleSize = 8;
-int sampleRate = 48000;
+int sampleRate = 11250;
 int channels = 1;
 
-int bufferSize = 2048;
+int bufferSize = 256;
 
 int outputPrecision = 6;
 unsigned int beatLengthSamples = 0;
@@ -38,7 +38,7 @@ u8 *pSamples[32];
 unsigned int sampleLengths[32];
 unsigned int currentFreeSample = 0;
 
-int sampleIndex = -1;
+int sampleIndex = NO_SAMPLE;
 unsigned int sampleOffset = 0;
 
 int done = 0;

@@ -28,7 +28,7 @@ Opcodes
 4 - Freq (1 - 2^24) in 1/1000 Hz
 5 - Volume (0 - 255)
 6 - Param (0 - 255)
-7 - Pitchbend (TODO)
+7 - Pitchbend (0 - 255) percent of wavelength to add/subtract (0-127 subtracts, 128-255 adds)
 8 - PCM load (0 - 2^24) number of samples
 9 - PCM playback (0 - 31) sample index
 

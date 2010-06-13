@@ -124,7 +124,8 @@ int executeInstruction(u8 opcode, u8 channel, unsigned int data) {
 		case 6: /* param */
 			osc_setParam(pOscillators[channel], fData / 255.0f );
 			break;
-		case 7: /* pitchbend - TODO */
+		case 7: /* pitchbend */
+			osc_setPitchbend(pOscillators[channel], (fData / 127.0f) - 1.0f);
 			break;
 		case 8: /* PCM load */
 			if(currentFreeSample == 32)

@@ -49,8 +49,13 @@ void osc_setParam(struct OscData *pOsc, float param) {
 		pOsc->param = param;
 }
 
+void osc_setPitchbend(struct OscData *pOsc, float pitchbend) {
+	if(pOsc)
+		pOsc->pitchbend = pitchbend;
+}
+
 void osc_advanceOsc(struct OscData *pOsc) {
-	pOsc->wavePos += pOsc->step;
+	pOsc->wavePos += pOsc->step + (pOsc->pitchbend * pOsc->step);
 	if(pOsc->wavePos > 2.0f * (float)M_PI)
 		pOsc->wavePos -= 2.0f * (float)M_PI;
 }
