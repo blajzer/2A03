@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009 Brett Lajzer
+Copyright (c) 2009-2010 Brett Lajzer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -57,9 +57,13 @@ extern unsigned int currentFreeSample;
 extern int sampleIndex;
 extern unsigned int sampleOffset;
 
+/* random channel data */
+#define RANDOM_TABLE_SIZE 176 /* (1 / 64) * 11250 */ 
+extern float randomTable[RANDOM_TABLE_SIZE];
+
 /* parsing vars */
 extern int done;
 extern int hFile;
-extern unsigned int samplesToSleep; 
+extern unsigned int samplesToSleep;
 #endif
 
