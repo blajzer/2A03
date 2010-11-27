@@ -24,7 +24,7 @@ Opcodes
 0 - Nop?
 1 - Precision (1 - 8)
 2 - Tempo (60 - 2^24) in bpm
-3 - Rest (0 - 2^24) in 1/32 beats
+3 - Rest (0 - 2^24) in beats
 4 - Freq (1 - 2^24) in 1/1000 Hz
 5 - Volume (0 - 255)
 6 - Param (0 - 255)
