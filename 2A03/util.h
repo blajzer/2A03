@@ -23,11 +23,26 @@ THE SOFTWARE.
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdint.h>
+
 #include "types.h"
 
 float clamp_f(float x, float min, float max);
 
 u8 clamp_u8(u8 x, u8 min, u8 max);
+
+enum LFSR_Mode {
+	LFSR_SHORT,
+	LFSR_LONG
+};
+
+struct LFSR_Prng {
+	uint16_t reg;
+	enum LFSR_Mode mode;
+};
+
+void initPrng(struct LFSR_Prng *prng);
+void updatePrng(struct LFSR_Prng *prng);
 
 #endif
 

@@ -22,11 +22,42 @@ THE SOFTWARE.
 
 #include "util.h"
 
+#define PRNG_BIT_MASK 0x7FFF
+#define PRNG_LONG_BIT_1 0xD
+#define PRNG_LONG_BIT_2 0xE
+#define PRNG_LONG_MASK_1 (1 << PRNG_LONG_BIT_1)
+#define PRNG_LONG_MASK_2 (1 << PRNG_LONG_BIT_2)
+
+#define PRNG_SHORT_BIT_1 0x8
+#define PRNG_SHORT_BIT_2 0xE
+#define PRNG_SHORT_MASK_1 (1 << PRNG_SHORT_BIT_1)
+#define PRNG_SHORT_MASK_2 (1 << PRNG_SHORT_BIT_2)
+
 float clamp_f(float x, float min, float max) {
 	return x < min ? min : (x > max ? max : x);
 }
 
 u8 clamp_u8(u8 x, u8 min, u8 max) {
 	return x < min ? min : (x > max ? max : x);
+}
+
+void initPrng(struct LFSR_Prng *prng) {
+	prng->reg = 1;
+	prng->mode = LFSR_LONG;
+}
+
+void updatePrng(struct LFSR_Prng *prng) {
+	uint16_t reg = prng->reg; //copy into local
+	uint16_t finalBit;
+	if(prng->mode == LFSR_LONG) {
+		const uint16_t bit1 = (reg & PRNG_LONG_MASK_1) >> PRNG_LONG_BIT_1;
+		const uint16_t bit2 = (reg & PRNG_LONG_MASK_2) >> PRNG_LONG_BIT_2;
+		finalBit = bit1 ^ bit2;
+	} else {
+		const uint16_t bit1 = (reg & PRNG_SHORT_MASK_1) >> PRNG_SHORT_BIT_1;
+		const uint16_t bit2 = (reg & PRNG_SHORT_MASK_2) >> PRNG_SHORT_BIT_2;
+		finalBit = bit1 ^ bit2;
+	}
+	prng->reg = ((reg << 1) | finalBit) & PRNG_BIT_MASK;
 }
 
