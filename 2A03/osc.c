@@ -77,6 +77,8 @@ float osc_getValue(struct OscData *pOsc) {
 			output -= 1.0;
 			break;
 		case RANDOM:
+			output = ((prng.reg * 2.0f) / 65535.0f) - 0.5f;
+			updatePrng(&prng);
 			break;
 	}
 	

@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include <unistd.h>
 #include "types.h"
+#include "util.h"
 
 #define NO_SAMPLE 255
 
@@ -57,9 +58,9 @@ extern unsigned int currentFreeSample;
 extern int sampleIndex;
 extern unsigned int sampleOffset;
 
+
 /* random channel data */
-#define RANDOM_TABLE_SIZE 176 /* (1 / 64) * 11250 */ 
-extern float randomTable[RANDOM_TABLE_SIZE];
+extern struct LFSR_Prng prng;
 
 /* parsing vars */
 extern int done;

@@ -112,6 +112,8 @@ int main(int argc, char **argv) {
 	pOscillators[2]->type = TRIANGLE;
 	pOscillators[3]->type = RANDOM;
 	
+	initPrng(&prng);
+	
 	/* init sample buffer array */
 	for(i = 0; i < 32; ++i) {
 		pSamples[i] = NULL;
