@@ -1,0 +1,17 @@
+2A03: A tiny, NES-style synthesizer.
+------------------------------------
+
+Dependencies:
+-------------
+* A POSIX system.
+* SDL (for audio output)
+
+Building:
+---------
+ Run "make" in 2A03/ and 2A03c/ for the compiler.
+
+Running:
+--------
+ 2A03 <music file>
+
+ Music files are compiled from an assembly-esque language using 2A03c. Refer to the instruction set and the sample files for more information.
